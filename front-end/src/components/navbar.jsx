@@ -37,14 +37,24 @@ import {
   Stack,
   Collapse,
   Icon,
+  Link,
   Popover,
   PopoverTrigger,
   PopoverContent,
   useColorModeValue,
-  useBreakpointValue,
   useDisclosure,
+  useBreakpointValue,
+  useColorMode,
+  Image,
+  FormControl,
+  Input,
+  Menu,
+  MenuDivider,
+  MenuButton,
+  Avatar,
+  MenuList,
+  MenuItem,
 } from "@chakra-ui/react";
-import { Link, useNavigate } from "react-router-dom";
 import {
 
   HamburgerIcon,
@@ -57,6 +67,7 @@ import {
 } from "@chakra-ui/icons";
 import { Link as Link2 } from "react-router-dom";
 import NavbarLogin from "./login";
+import { Register } from "./register";
 
 import { useDispatch, useSelector } from "react-redux";
 import { logout, login } from "../redux/userSlice";
@@ -65,11 +76,15 @@ import Swal from "sweetalert2";
 import Axios from "axios";
 import { useNavigate } from "react-router-dom";
 
+import { loanDel, loanSync } from "../redux/loanSlice";
+import { cartSync, cartDel } from "../redux/cartSlice";
+
+
 export default function NavbarComp() {
   const { NIM, username, email, isVerified } = useSelector(
     (state) => state.userSlice.value
   );
-  console.log(NIM, username, isVerified);
+
   const { isOpen, onToggle, onClose, onOpen } = useDisclosure();
   //   const { colorMode, toggleColorMode } = useColorMode();
   const tokenlocalstorage = localStorage.getItem("token");
@@ -81,6 +96,8 @@ export default function NavbarComp() {
 
   const onLogout = () => {
     dispatch(logout());
+    dispatch(cartDel())
+    dispatch(loanDel())
     localStorage.removeItem("token");
   };
 
@@ -101,11 +118,15 @@ export default function NavbarComp() {
         },
       });
       setTimeout(() => navigate(`/verification/${result.data.token}`), 2000);
-    } catch (err) {
+
+    } catch (error) {
       Swal.fire({
         icon: "error",
         title: "Oops...",
-        text: `${err.response.data}`,
+        text: error.response.data.name
+        ? error.response.data.errors[0].message
+        : error.response.data,
+
         customClass: {
           container: "my-swal",
         },
@@ -176,11 +197,13 @@ export default function NavbarComp() {
               <MenuItem>{username}</MenuItem>
               <MenuItem>{NIM}</MenuItem>
               <MenuDivider />
-              <MenuItem>Profile</MenuItem>
+
+              {/* <MenuItem>Profile</MenuItem> */}
               {isVerified ? (
                 ""
               ) : (
-                <MenuItem onClick={onVerification}>Verifcation Account</MenuItem>
+                <MenuItem onClick={onVerification}>Verification Account</MenuItem>
+
               )}
               <MenuItem as={Link2} to="/" onClick={onLogout}>
                 Log Out
@@ -477,44 +500,37 @@ const MobileNavItem = ({ label, children, href }) => {
 };
 
 const NAV_ITEMS = [
-  {
-    label: "Inspiration",
-    children: [
-      {
-        label: "Explore Design Work",
-        subLabel: "Trending Design to inspire you",
 
-        href: "/",
-
-      },
-      {
-        label: "New & Noteworthy",
-        subLabel: "Up-and-coming Designers",
-
-        href: "/",
-
-      },
-    ],
-  },
-  {
-    label: "Find Work",
-    children: [
-      {
-        label: "Job Board",
-        subLabel: "Find your dream design job",
-
-        href: "/",
-
-        href: "#",
-
-      },
-      {
-        label: "Freelance Projects",
-        subLabel: "An exclusive list for contract work",
-
-        href: "/",
-      },
-    ],
-  },
+  // {
+  //   label: "Inspiration",
+  //   children: [
+  //     {
+  //       label: "Explore Design Work",
+  //       subLabel: "Trending Design to inspire you",
+  //       href: "/",
+  //     },
+  //     {
+  //       label: "New & Noteworthy",
+  //       subLabel: "Up-and-coming Designers",
+  //       href: "/",
+  //     },
+  //   ],
+  // },
+  // {
+  //   label: "Find Work",
+  //   children: [
+  //     {
+  //       label: "Job Board",
+  //       subLabel: "Find your dream design job",
+  //       href: "/",
+  //     },
+  //     {
+  //       label: "Freelance Projects",
+  //       subLabel: "An exclusive list for contract work",
+  //       href: "/",
+  //     },
+  //   ],
+  // },
 
 ];
+

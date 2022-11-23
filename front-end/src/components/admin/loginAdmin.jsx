@@ -4,7 +4,8 @@ import {
   FormControl,
   FormLabel,
   Input,
-  Checkbox,
+
+
   Stack,
   Link,
   Button,
@@ -13,91 +14,78 @@ import {
   useColorModeValue,
   useDisclosure,
   useColorMode,
-  Image,
+
+
   Collapse,
   Avatar,
   MenuList,
   MenuItem,
   Menu,
   MenuButton,
-  IconButton,
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
+
   Icon,
+  Badge,
 } from "@chakra-ui/react";
-import {
-  MoonIcon,
-  SunIcon,
-  CloseIcon,
-  HamburgerIcon,
-  ChevronDownIcon,
-} from "@chakra-ui/icons";
+import { ChevronDownIcon } from "@chakra-ui/icons";
+
 import { useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Axios from "axios";
 import Swal from "sweetalert2";
-import { login, logout } from "../../redux/userSlice";
+
+import { loginAdmin } from "../../redux/adminSlice";
+
 import { useNavigate } from "react-router-dom";
 const url = "http://localhost:2000/admins/login";
 
 export default function LoginAdmin() {
   const { username } = useSelector((state) => state.userSlice.value);
-  
+
   const { isOpen, onToggle, onClose, onOpen } = useDisclosure();
   const { colorMode, toggleColorMode } = useColorMode();
-  const tokenlocalstorage = localStorage.getItem("token");
+  const tokenlocalstorage = localStorage.getItem("tokenAdmin");
+
   const dispatch = useDispatch();
   const inputUsername = useRef("");
   const inputPASS = useRef("");
   const navigate = useNavigate();
 
-  const onLogout = () => {
-    dispatch(logout());
-    localStorage.removeItem("token");
+
+  const onLogin = async (data) => {
+    data.preventDefault();
+    try {
+      const user = {
+        password: inputPASS.current.value,
+        username: inputUsername.current.value,
+      };
+
+      console.log(user);
+
+      const result = await Axios.post(url, user);
+
+      dispatch(
+        loginAdmin({
+          username: result.data.isUserExist.username,
+        })
+      );
+
+      localStorage.setItem("tokenAdmin", result.data.token);
+      navigate("/dashboard");
+    } catch (err) {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: `${err.response.data}`,
+        timer: 1000,
+        customClass: {
+          container: "my-swal",
+        },
+      });
+    }
   };
-
-  const onLogin = async () =>
-    // data
-    {
-      // data.preventDefault()
-      try {
-        const user = {
-          password: inputPASS.current.value,
-          username: inputUsername.current.value,
-        };
-
-        console.log(user);
-
-        const result = await Axios.post(url, user);
-
-        dispatch(
-          login({
-            username: result.data.isUserExist.username,
-            email: result.data.isUserExist.email,
-          })
-        );
-
-        localStorage.setItem("token", result.data.token);
-        navigate("/dashboard");
-      } catch (err) {
-        Swal.fire({
-          icon: "error",
-          title: "Oops...",
-          text: `${err.response.data}`,
-          timer: 1000,
-          customClass: {
-            container: "my-swal",
-          },
-        });
-      }
-    };
 
   return (
     <Box>
-      <Collapse in={isOpen} animateOpacity>
-        <MobileNav />
-      </Collapse>
 
       <Flex
         minH={"100vh"}
@@ -107,11 +95,9 @@ export default function LoginAdmin() {
       >
         <Stack spacing={8} mx={"auto"} maxW={"lg"} py={12} px={6}>
           <Stack align={"center"}>
-            <Heading fontSize={"4xl"}>Sign in to your account</Heading>
-            <Text fontSize={"lg"} color={"gray.600"}>
-              to enjoy all of our cool <Link color={"blue.400"}>features</Link>{" "}
-              ✌️
-            </Text>
+
+            <Heading fontSize={"4xl"}>Admin Page</Heading>
+
           </Stack>
           <Box
             rounded={"lg"}
@@ -134,8 +120,14 @@ export default function LoginAdmin() {
                   align={"start"}
                   justify={"space-between"}
                 >
-                  <Checkbox>Remember me</Checkbox>
-                  <Link color={"blue.400"}>Forgot password?</Link>
+
+                  {/* <Link color={"blue.400"}>
+                    Forgot password?
+                    <Badge ml="1" fontSize="0.8em" colorScheme="green">
+                      Coming Soon
+                    </Badge>
+                  </Link> */}
+
                 </Stack>
                 <Button
                   bg={"blue.400"}
@@ -155,6 +147,7 @@ export default function LoginAdmin() {
     </Box>
   );
 }
+
 
 const DesktopNav = () => {
   const linkColor = useColorModeValue("gray.600", "gray.200");
@@ -352,5 +345,6 @@ const MobileNavItem = ({ label, children, href }) => {
     </>
   );
 };
+
 
 

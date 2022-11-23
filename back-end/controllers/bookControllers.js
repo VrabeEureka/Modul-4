@@ -166,7 +166,9 @@ module.exports = {
           {
             model: cart,
             attributes: ["id", "UserNIM"],
-          }
+
+          },
+
         ],
         where: {
           [Op.or]: [
@@ -194,7 +196,9 @@ module.exports = {
           {
             model: cart,
             attributes: ["id", "UserNIM"],
-          }
+
+          },
+
         ],
       });
 
@@ -234,4 +238,32 @@ module.exports = {
       res.status(400).send(err);
     }
   },
+
+  getBy: async (req, res) => {
+    try {
+      const { title, genre, publisher, author } = req.query;
+      const users = await book.findAll({
+        where: {
+          [Op.or]: {
+            title: title ? title : '',
+            author: author ? author : '',
+            genre: genre ? genre : '',
+            publisher: publisher ? publisher : '',
+          },
+        },
+        include: [
+          {
+            model: cart,
+            attributes: ["id", "UserNIM"],
+          }
+        ],
+        raw: true,
+      });
+      res.status(200).send(users);
+    } catch (err) {
+      console.log(err);
+      res.status(400).send(err);
+    }
+  },
+
 };

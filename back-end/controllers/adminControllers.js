@@ -15,6 +15,10 @@ module.exports = {
       if (password.length < 8) throw "Minimum 8 characters";
 
       const salt = await bcrypt.genSalt(10);
+=======
+
+
+
 
       const hashPass = await bcrypt.hash(password, salt);
 
@@ -24,7 +28,9 @@ module.exports = {
         password: hashPass,
       });
 
-      const token = jwt.sign({ username: data.username }, process.env.SECRET_KEY, {
+
+      const token = jwt.sign({ username: username }, process.env.SECRET_KEY, {
+
         expiresIn: "3d",
       });
       res.status(200).send({
@@ -88,8 +94,10 @@ module.exports = {
         raw: true,
       });
 
+
     //   result.profilePic = isProflieExist.profilePic;
     //   console.log(result)
+
 
       res.status(200).send(result);
     } catch (err) {

@@ -20,6 +20,10 @@ export const VerificationPage = () => {
   const otp5 = useRef("");
   const otp6 = useRef("");
 
+  localStorage.getItem("token");
+
+
+
   const dispatch = useDispatch();
 
   const onVerification = async () => {

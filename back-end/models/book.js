@@ -11,6 +11,9 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       Book.hasMany(models.Cart);
 
+      Book.hasMany(models.Loan_Detail);
+
+
     }
   }
   Book.init(

@@ -5,13 +5,18 @@ import DetailPage from "./pages/DetailPage";
 import { AdminPage } from "./pages/AdminPage";
 import { AdminDashboard } from "./pages/AdminDashboard";
 
+import CartPage from "./pages/CartPage";
+import LoanPage from "./pages/LoanPage";
+
 import Navbar from "./components/navbar";
 import { login } from "./redux/userSlice";
-import { syncData } from "./redux/cartSlice";
-import { loanData } from "./redux/loanSlice";
+import { cartSync } from "./redux/cartSlice";
+import { loanSync } from "./redux/loanSlice";
+import { loginAdmin } from "./redux/adminSlice";
 
 import Axios from "axios";
-import { useDispatch,useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+
 import { useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
 import "./App.css";
@@ -19,7 +24,8 @@ import "./App.css";
 function App() {
   const dispatch = useDispatch();
   const token = localStorage.getItem("token");
-  const { NIM } = useSelector((state) => state.userSlice.value);
+
+  const tokenAdmin = localStorage.getItem("tokenAdmin");
 
   const keepLogin = async () => {
     try {
@@ -30,11 +36,16 @@ function App() {
       });
 
 
-      const result = await Axios.get(`http://localhost:2000/carts/${res.data.NIM}`);
-      dispatch(syncData(result.data))
+      const result = await Axios.get(
+        `http://localhost:2000/carts/${res.data.NIM}`
+      );
+      dispatch(cartSync(result.data));
 
-      const loan = await Axios.get(`http://localhost:2000/loans/${res.data.NIM}`);
-      dispatch(loanData(loan.data))
+      const loan = await Axios.get(
+        `http://localhost:2000/loans/${res.data.NIM}`
+      );
+      dispatch(loanSync(loan.data));
+
 
 
       dispatch(
@@ -44,7 +55,26 @@ function App() {
           email: res.data.email,
           isVerified: res.data.isVerified,
           cart: result.data.length,
-          loan: loan.data.length
+
+          loan: loan.data.length,
+        })
+      );
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const keepLoginAdmin = async () => {
+    try {
+      const res = await Axios.get(`http://localhost:2000/admins/keepLogin`, {
+        headers: {
+          Authorization: `Bearer ${tokenAdmin}`,
+        },
+      });
+      dispatch(
+        loginAdmin({
+          username: res.data.username,
+
         })
       );
     } catch (err) {
@@ -70,18 +100,54 @@ const keepLoginAdmin = async () => {
     }
   };
   useEffect(() => {
-    NIM === 0 ? keepLogin() : keepLoginAdmin();
+
+    tokenAdmin
+      ? keepLoginAdmin()
+      : token
+      ? keepLogin()
+      : console.log("Open Library");
   });
-
-
-  console.log("test");
-
+  
   return (
     <div>
       <Routes>
-        <Route path="/" element={<><Navbar /><HomePage /></>} />
+        <Route
+          path="/"
+          element={
+            <>
+              <Navbar />
+              <HomePage />
+            </>
+          }
+        />
         <Route path="/verification/:token" element={<VerificationPage />} />
-        <Route path="/details/:id" element={<><Navbar /><DetailPage /></>} />
+        <Route
+          path="/details/:id"
+          element={
+            <>
+              <Navbar />
+              <DetailPage />
+            </>
+          }
+        />
+        <Route
+          path="/cart"
+          element={
+            <>
+              <Navbar />
+              <CartPage />
+            </>
+          }
+        />
+        <Route
+          path="/loan"
+          element={
+            <>
+              <Navbar />
+              <LoanPage />
+            </>
+          }
+        />
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/dashboard" element={<AdminDashboard />} />
 

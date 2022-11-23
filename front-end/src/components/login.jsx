@@ -180,6 +180,9 @@ import { useState, useRef } from "react";
 import { useDispatch } from "react-redux";
 import { login } from "../redux/userSlice";
 import { Navigate } from "react-router-dom";
+import { cartSync, cartDel } from "../redux/cartSlice";
+import { loanDel, loanSync } from "../redux/loanSlice";
+
 const url = "http://localhost:2000/users/login";
 
 function NavbarLogin() {
@@ -196,11 +199,24 @@ function NavbarLogin() {
       console.log(user);
       const result = await Axios.post(url, user);
       console.log(result.data);
+      const res = await Axios.get(
+        `http://localhost:2000/carts/${result.data.isUserExist.NIM}`
+      );
+      dispatch(cartSync(res.data));
+      console.log(res.data);
+      const loan = await Axios.get(
+        `http://localhost:2000/loans/${result.data.isUserExist.NIM}`
+      );
+      dispatch(loanSync(loan.data));
+      console.log(loan.data);
       dispatch(
         login({
-          NIM: result.data.user.NIM,
-          username: result.data.user.username,
-          email: result.data.user.email,
+          NIM: result.data.isUserExist.NIM,
+          username: result.data.isUserExist.username,
+          email: result.data.isUserExist.email,
+          isVerified: result.data.isUserExist.isVerified,
+          cart: res.data.length,
+          loan: loan.data.length,
         })
       );
       localStorage.setItem("token", result.data.token);
@@ -209,6 +225,9 @@ function NavbarLogin() {
         icon: "success",
         title: "Yeay!",
         text: result.data.message,
+        customClass: {
+          container: "my-swal",
+        },
       });
       setMove(true);
     } catch (err) {
@@ -218,6 +237,9 @@ function NavbarLogin() {
         title: "Oops...",
         text: err.data,
         footer: '<a href="">Why do I have this issue?</a>',
+        customClass: {
+          container: "my-swal",
+        },
       });
     }
   };
@@ -230,8 +252,10 @@ function NavbarLogin() {
           onClick={onOpen}
           fontSize={"sm"}
           fontWeight={600}
-          color={"white"}
-          bg={"blue.500"}
+          color={"black"}
+          border="2px"
+          borderColor="gray.400"
+          bg={"white.500"}
         >
           Sign In
         </Button>

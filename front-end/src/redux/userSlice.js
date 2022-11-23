@@ -7,7 +7,9 @@ const initialState = {
     email: "",
     isVerified: "",
     cart: 0,
-    // loan: 0,
+
+    loan: 0,
+
   },
 };
 
@@ -30,11 +32,30 @@ export const userSlice = createSlice({
       state.value.isVerified = "";
       state.value.cart = 0;
       state.value.loan = 0;
+
+    },
+    addCart: (state) => {
+      state.value.cart += 1
+    },
+    delCart: (state) => {
+      state.value.cart -= 1
+    },
+    CartLoan: (state) => {
+      state.value.cart = 0
+    },
+    addLoan: (state) => {
+      state.value.loan = 1
+    },
+    delLoan: (state) => {
+      state.value.loan = 0
+
     },
   },
 });
 
 // Action creators are generated for each case reducer function
-export const { login, logout } = userSlice.actions;
+
+export const { login, logout, addCart, delCart, CartLoan, addLoan, delLoan } = userSlice.actions;
+
 
 export default userSlice.reducer;
